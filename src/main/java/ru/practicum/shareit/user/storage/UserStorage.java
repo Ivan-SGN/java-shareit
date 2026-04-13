@@ -16,4 +16,6 @@ public interface UserStorage {
     Collection<User> getAll();
 
     void delete(Long id);
+
+    boolean existsByEmail(String email, Long excludeUserId);
 }

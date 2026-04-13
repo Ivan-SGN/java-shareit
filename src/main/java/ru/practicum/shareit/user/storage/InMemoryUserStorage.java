@@ -43,4 +43,13 @@ public class InMemoryUserStorage implements UserStorage {
     public void delete(Long id) {
         users.remove(id);
     }
+
+    @Override
+    public boolean existsByEmail(String email, Long excludeUserId) {
+        return users.values().stream()
+                .anyMatch(user ->
+                        user.getEmail().equals(email) &&
+                                (excludeUserId == null || !user.getId().equals(excludeUserId))
+                );
+    }
 }

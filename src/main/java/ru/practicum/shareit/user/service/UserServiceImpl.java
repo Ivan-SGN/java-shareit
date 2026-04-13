@@ -34,9 +34,7 @@ public class UserServiceImpl implements UserService {
         log.info("Update user id={}", userId);
 
         User user = getUserOrThrow(userId);
-        if (userDto.getEmail() != null) {
-            validateEmailUnique(userDto.getEmail(), userId);
-        }
+        validateUpdateFields(userId, userDto);
 
         userMapper.update(userDto, user);
 
@@ -72,12 +70,25 @@ public class UserServiceImpl implements UserService {
                 });
     }
 
-    private void validateEmailUnique(String email, Long excludeUserId) {
-        userStorage.getAll().forEach(user -> {
-            if (user.getEmail().equals(email) && (!user.getId().equals(excludeUserId))) {
-                log.warn("Email already exists: {}", email);
-                throw new ConflictException("Email already exists");
+    private void validateUpdateFields(Long userId, UserDto userDto) {
+        if (userDto.getEmail() != null) {
+            if (userDto.getEmail().isBlank()) {
+                log.warn("Invalid email for user id={}: blank value", userId);
+                throw new ru.practicum.shareit.exception.ValidationException("Email must not be blank");
             }
-        });
+            validateEmailUnique(userDto.getEmail(), userId);
+        }
+
+        if (userDto.getName() != null && userDto.getName().isBlank()) {
+            log.warn("Invalid name for user id={}: blank value", userId);
+            throw new ru.practicum.shareit.exception.ValidationException("Name must not be blank");
+        }
+    }
+
+    private void validateEmailUnique(String email, Long excludeUserId) {
+        if (userStorage.existsByEmail(email, excludeUserId)) {
+            log.warn("Email already exists: {}", email);
+            throw new ConflictException("Email already exists");
+        }
     }
 }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
@@ -43,6 +44,7 @@ public class ItemServiceImpl implements ItemService {
             log.warn("User {} is not owner of item {}", userId, itemId);
             throw new NotFoundException("User is not owner of item");
         }
+        validateUpdateFields(itemId, itemDto);
         itemMapper.update(itemDto, item);
 
         return itemMapper.toDto(itemStorage.update(item));
@@ -92,5 +94,16 @@ public class ItemServiceImpl implements ItemService {
                     log.warn("User not found id={}", userId);
                     return new NotFoundException("User not found with id=" + userId);
                 });
+    }
+
+    private void validateUpdateFields(Long itemId, ItemDto itemDto) {
+        if (itemDto.getName() != null && itemDto.getName().isBlank()) {
+            log.warn("Invalid item name for item id={}: blank value", itemId);
+            throw new ValidationException("Name must not be blank");
+        }
+        if (itemDto.getDescription() != null && itemDto.getDescription().isBlank()) {
+            log.warn("Invalid item description for item id={}: blank value", itemId);
+            throw new ValidationException("Description must not be blank");
+        }
     }
 }
