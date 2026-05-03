@@ -6,11 +6,13 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.item.storage.ItemStorage;
+import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.user.storage.UserRepository;
 
 import java.util.Collection;
 import java.util.List;
@@ -21,22 +23,22 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
-    private final ItemStorage itemStorage;
-    private final UserStorage userStorage;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
     private final ItemMapper itemMapper;
 
     @Override
-    public ItemDto create(Long userId, ItemDto itemDto) {
+    public ItemDto create(Long userId, ItemCreateDto itemDto) {
         log.info("Create item by user id={}", userId);
 
         User owner = getUserOrThrow(userId);
-        Item item = itemMapper.toEntity(itemDto, owner, null);
+        Item item = itemMapper.toEntity(itemDto, owner);
 
-        return itemMapper.toDto(itemStorage.create(item));
+        return itemMapper.toDto(itemRepository.save(item));
     }
 
     @Override
-    public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
+    public ItemDto update(Long userId, Long itemId, ItemUpdateDto itemDto) {
         log.info("Update item id={} by user id={}", itemId, userId);
 
         Item item = getItemOrThrow(itemId);
@@ -47,7 +49,7 @@ public class ItemServiceImpl implements ItemService {
         validateUpdateFields(itemId, itemDto);
         itemMapper.update(itemDto, item);
 
-        return itemMapper.toDto(itemStorage.update(item));
+        return itemMapper.toDto(itemRepository.save(item));
     }
 
     @Override
@@ -62,7 +64,7 @@ public class ItemServiceImpl implements ItemService {
 
         getUserOrThrow(userId);
 
-        return itemStorage.getByOwner(userId).stream()
+        return itemRepository.findAllByOwnerId(userId).stream()
                 .map(itemMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -75,13 +77,13 @@ public class ItemServiceImpl implements ItemService {
             return List.of();
         }
 
-        return itemStorage.search(text).stream()
+        return itemRepository.search(text).stream()
                 .map(itemMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     private Item getItemOrThrow(Long itemId) {
-        return itemStorage.getById(itemId)
+        return itemRepository.findById(itemId)
                 .orElseThrow(() -> {
                     log.warn("Item not found id={}", itemId);
                     return new NotFoundException("Item not found with id=" + itemId);
@@ -89,14 +91,14 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private User getUserOrThrow(Long userId) {
-        return userStorage.getById(userId)
+        return userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.warn("User not found id={}", userId);
                     return new NotFoundException("User not found with id=" + userId);
                 });
     }
 
-    private void validateUpdateFields(Long itemId, ItemDto itemDto) {
+    private void validateUpdateFields(Long itemId, ItemUpdateDto itemDto) {
         if (itemDto.getName() != null && itemDto.getName().isBlank()) {
             log.warn("Invalid item name for item id={}: blank value", itemId);
             throw new ValidationException("Name must not be blank");
