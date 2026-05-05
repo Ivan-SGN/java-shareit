@@ -3,6 +3,10 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.booking.dto.BookingShortDto;
+import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.Item;
@@ -14,9 +18,13 @@ import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.storage.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.HashMap;
 
 @Slf4j
 @Service
@@ -26,6 +34,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final ItemMapper itemMapper;
+    private final BookingRepository bookingRepository;
 
     @Override
     public ItemDto create(Long userId, ItemCreateDto itemDto) {
@@ -53,20 +62,28 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getById(Long itemId) {
-        log.info("Get item id={}", itemId);
-        return itemMapper.toDto(getItemOrThrow(itemId));
+    public ItemDto getById(Long userId, Long itemId) {
+        log.info("Get item id={} by user id={}", itemId, userId);
+        Item item = getItemOrThrow(itemId);
+        ItemDto dto = itemMapper.toDto(item);
+        enrichBooking(dto, item, userId);
+        return dto;
     }
 
     @Override
     public Collection<ItemDto> getByOwner(Long userId) {
         log.info("Get items by owner id={}", userId);
-
         getUserOrThrow(userId);
-
-        return itemRepository.findAllByOwnerId(userId).stream()
-                .map(itemMapper::toDto)
-                .collect(Collectors.toList());
+        List<Item> items = itemRepository.findAllByOwnerId(userId);
+        List<ItemDto> dtos = mapToDtos(items);
+        if (items.isEmpty()) {
+            return dtos;
+        }
+        Map<Long, Booking> lastMap = new HashMap<>();
+        Map<Long, Booking> nextMap = new HashMap<>();
+        fillBookingMaps(items, lastMap, nextMap);
+        enrichDtos(items, dtos, lastMap, nextMap);
+        return dtos;
     }
 
     @Override
@@ -106,6 +123,61 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getDescription() != null && itemDto.getDescription().isBlank()) {
             log.warn("Invalid item description for item id={}: blank value", itemId);
             throw new ValidationException("Description must not be blank");
+        }
+    }
+
+    private void enrichBooking(ItemDto dto, Item item, Long userId) {
+        if (!item.getOwner().getId().equals(userId)) {
+            return;
+        }
+        LocalDateTime now = LocalDateTime.now();
+        Optional<Booking> last = bookingRepository
+                .findFirstByItemIdAndStartBeforeAndStatusOrderByStartDesc(item.getId(), now, BookingStatus.APPROVED);
+        Optional<Booking> next = bookingRepository
+                .findFirstByItemIdAndStartAfterAndStatusOrderByStartAsc(item.getId(), now, BookingStatus.APPROVED);
+        dto.setLastBooking(last.map(this::toShortDto).orElse(null));
+        dto.setNextBooking(next.map(this::toShortDto).orElse(null));
+    }
+
+    private BookingShortDto toShortDto(Booking booking) {
+        BookingShortDto dto = new BookingShortDto();
+        dto.setId(booking.getId());
+        dto.setBookerId(booking.getBooker().getId());
+        return dto;
+    }
+
+    private List<ItemDto> mapToDtos(List<Item> items) {
+        return items.stream().map(itemMapper::toDto).collect(Collectors.toList());
+    }
+
+    private void fillBookingMaps(List<Item> items, Map<Long, Booking> lastMap, Map<Long, Booking> nextMap) {
+        LocalDateTime now = LocalDateTime.now();
+        List<Long> itemIds = items.stream().map(Item::getId).collect(Collectors.toList());
+        List<Booking> bookings = bookingRepository.findByItemIdInAndStatus(itemIds, BookingStatus.APPROVED);
+        for (Booking booking : bookings) {
+            Long itemId = booking.getItem().getId();
+            if (booking.getStart().isBefore(now)) {
+                Booking current = lastMap.get(itemId);
+                if (current == null || booking.getStart().isAfter(current.getStart())) {
+                    lastMap.put(itemId, booking);
+                }
+            } else {
+                Booking current = nextMap.get(itemId);
+                if (current == null || booking.getStart().isBefore(current.getStart())) {
+                    nextMap.put(itemId, booking);
+                }
+            }
+        }
+    }
+
+    private void enrichDtos(List<Item> items, List<ItemDto> dtos, Map<Long, Booking> lastMap, Map<Long, Booking> nextMap) {
+        for (int i = 0; i < items.size(); i++) {
+            Item item = items.get(i);
+            ItemDto dto = dtos.get(i);
+            Booking last = lastMap.get(item.getId());
+            Booking next = nextMap.get(item.getId());
+            dto.setLastBooking(last != null ? toShortDto(last) : null);
+            dto.setNextBooking(next != null ? toShortDto(next) : null);
         }
     }
 }
