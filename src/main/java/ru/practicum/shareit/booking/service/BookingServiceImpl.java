@@ -8,7 +8,7 @@ import ru.practicum.shareit.booking.BookingState;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -137,41 +137,30 @@ public class BookingServiceImpl implements BookingService {
 
     private List<Booking> getBookingsByUserState(Long userId, BookingState state) {
         LocalDateTime now = LocalDateTime.now();
-        switch (state) {
-            case ALL:
-                return bookingRepository.findByBookerIdOrderByStartDesc(userId);
-            case CURRENT:
-                return bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, now, now);
-            case PAST:
-                return bookingRepository.findByBookerIdAndEndBeforeOrderByStartDesc(userId, now);
-            case FUTURE:
-                return bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(userId, now);
-            case WAITING:
-                return bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
-            case REJECTED:
-                return bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
-            default:
-                throw new ValidationException("Unknown state: " + state);
-        }
+        return switch (state) {
+            case ALL -> bookingRepository.findByBookerIdOrderByStartDesc(userId);
+            case CURRENT -> bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, now, now);
+            case PAST -> bookingRepository.findByBookerIdAndEndBeforeOrderByStartDesc(userId, now);
+            case FUTURE -> bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(userId, now);
+            case WAITING -> bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
+            case REJECTED -> bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
+            default -> throw new ValidationException("Unknown state: " + state);
+        };
     }
 
     private List<Booking> getBookingsByOwnerState(Long ownerId, BookingState state) {
         LocalDateTime now = LocalDateTime.now();
-        switch (state) {
-            case ALL:
-                return bookingRepository.findByItemOwnerIdOrderByStartDesc(ownerId);
-            case CURRENT:
-                return bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId, now, now);
-            case PAST:
-                return bookingRepository.findByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, now);
-            case FUTURE:
-                return bookingRepository.findByItemOwnerIdAndStartAfterOrderByStartDesc(ownerId, now);
-            case WAITING:
-                return bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
-            case REJECTED:
-                return bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
-            default:
-                throw new ValidationException("Unknown state: " + state);
-        }
+        return switch (state) {
+            case ALL -> bookingRepository.findByItemOwnerIdOrderByStartDesc(ownerId);
+            case CURRENT ->
+                    bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId, now, now);
+            case PAST -> bookingRepository.findByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, now);
+            case FUTURE -> bookingRepository.findByItemOwnerIdAndStartAfterOrderByStartDesc(ownerId, now);
+            case WAITING ->
+                    bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
+            case REJECTED ->
+                    bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
+            default -> throw new ValidationException("Unknown state: " + state);
+        };
     }
 }
