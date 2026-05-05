@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.storage.BookingRepository;
+import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.Item;
@@ -48,7 +49,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = getBookingOrThrow(bookingId);
         if (!booking.getItem().getOwner().getId().equals(ownerId)) {
             log.warn("User {} is not owner of item {}", ownerId, booking.getItem().getId());
-            throw new NotFoundException("User is not owner");
+            throw new ForbiddenException("User is not owner");
         }
         if (booking.getStatus() != BookingStatus.WAITING) {
             log.warn("Booking {} already processed status={}", bookingId, booking.getStatus());

@@ -19,7 +19,7 @@ public interface BookingMapper {
     @Mapping(target = "status", ignore = true)
     Booking toEntity(BookingCreateDto dto, Item item, User booker);
 
-    @Mapping(target = "itemId", source = "item.id")
-    @Mapping(target = "bookerId", source = "booker.id")
+    @Mapping(target = "item", source = "item")
+    @Mapping(target = "booker", source = "booker")
     BookingDto toDto(Booking booking);
 }

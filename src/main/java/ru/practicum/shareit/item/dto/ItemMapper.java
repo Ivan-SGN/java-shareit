@@ -16,7 +16,6 @@ public interface ItemMapper {
     @Mapping(target = "description", source = "dto.description")
     @Mapping(target = "available", source = "dto.available")
     @Mapping(target = "owner", source = "owner")
-    @Mapping(target = "request", ignore = true)
     Item toEntity(ItemCreateDto dto, User owner);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
