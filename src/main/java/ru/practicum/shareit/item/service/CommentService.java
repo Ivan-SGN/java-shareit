@@ -5,5 +5,5 @@ import ru.practicum.shareit.item.dto.CommentDto;
 
 public interface CommentService {
 
-    CommentDto create(CommentCreateDto Comment, Long userId, Long itemId);
+    CommentDto create(CommentCreateDto comment, Long userId, Long itemId);
 }

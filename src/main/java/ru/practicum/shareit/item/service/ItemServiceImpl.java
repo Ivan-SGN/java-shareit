@@ -9,7 +9,6 @@ import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.Comment;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.storage.CommentRepository;

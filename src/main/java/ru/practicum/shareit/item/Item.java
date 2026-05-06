@@ -7,7 +7,8 @@ import ru.practicum.shareit.user.User;
 
 @Entity
 @Table(name = "items")
-@Getter @Setter
+@Getter
+@Setter
 public class Item {
 
     @Id
