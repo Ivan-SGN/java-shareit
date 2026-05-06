@@ -9,6 +9,9 @@ public interface ItemMapper {
 
     @Mapping(target = "ownerId", source = "owner.id")
     @Mapping(target = "requestId", ignore = true)
+    @Mapping(target = "lastBooking", ignore = true)
+    @Mapping(target = "nextBooking", ignore = true)
+    @Mapping(target = "comments", ignore = true)
     ItemDto toDto(Item item);
 
     @Mapping(target = "id", ignore = true)

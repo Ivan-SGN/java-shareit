@@ -9,11 +9,10 @@ import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.Comment;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.item.dto.ItemCreateDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemUpdateDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.item.storage.CommentRepository;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.storage.UserRepository;
@@ -35,6 +34,8 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final ItemMapper itemMapper;
     private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
+    private final CommentMapper commentMapper;
 
     @Override
     public ItemDto create(Long userId, ItemCreateDto itemDto) {
@@ -67,6 +68,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = getItemOrThrow(itemId);
         ItemDto dto = itemMapper.toDto(item);
         enrichBooking(dto, item, userId);
+        enrichComments(dto, item.getId());
         return dto;
     }
 
@@ -75,7 +77,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("Get items by owner id={}", userId);
         getUserOrThrow(userId);
         List<Item> items = itemRepository.findAllByOwnerId(userId);
-        List<ItemDto> dtos = mapToDtos(items);
+        List<ItemDto> dtos = items.stream().map(itemMapper::toDto).collect(Collectors.toList());
         if (items.isEmpty()) {
             return dtos;
         }
@@ -146,10 +148,6 @@ public class ItemServiceImpl implements ItemService {
         return dto;
     }
 
-    private List<ItemDto> mapToDtos(List<Item> items) {
-        return items.stream().map(itemMapper::toDto).collect(Collectors.toList());
-    }
-
     private void fillBookingMaps(List<Item> items, Map<Long, Booking> lastMap, Map<Long, Booking> nextMap) {
         LocalDateTime now = LocalDateTime.now();
         List<Long> itemIds = items.stream().map(Item::getId).collect(Collectors.toList());
@@ -179,5 +177,13 @@ public class ItemServiceImpl implements ItemService {
             dto.setLastBooking(last != null ? toShortDto(last) : null);
             dto.setNextBooking(next != null ? toShortDto(next) : null);
         }
+    }
+
+    private void enrichComments(ItemDto dto, Long itemId) {
+        List<CommentDto> comments = commentRepository.findAllByItemId(itemId)
+                .stream()
+                .map(commentMapper::toDto)
+                .collect(Collectors.toList());
+        dto.setComments(comments);
     }
 }
