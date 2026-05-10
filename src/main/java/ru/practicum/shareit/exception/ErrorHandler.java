@@ -66,4 +66,11 @@ public class ErrorHandler {
         log.warn("Conflict: {}", e.getMessage());
         return Map.of("error", e.getMessage());
     }
+
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Map<String, String> handleConflict(ForbiddenException e) {
+        log.warn("Conflict: {}", e.getMessage());
+        return Map.of("error", e.getMessage());
+    }
 }
