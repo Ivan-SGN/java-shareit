@@ -58,7 +58,7 @@ public class CommentServiceImpl implements CommentService {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> {
                     log.warn("Item not found id={}", itemId);
-                    return new NotFoundException("Item not found");
+                    return new NotFoundException("Item not found = " + itemId);
                 });
     }
 
@@ -66,7 +66,7 @@ public class CommentServiceImpl implements CommentService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.warn("User not found id={}", userId);
-                    return new NotFoundException("User not found");
+                    return new NotFoundException("User not found = " + userId);
                 });
     }
 }

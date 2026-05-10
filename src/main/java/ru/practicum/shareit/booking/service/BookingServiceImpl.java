@@ -93,21 +93,21 @@ public class BookingServiceImpl implements BookingService {
     private Booking getBookingOrThrow(Long bookingId) {
         return bookingRepository.findById(bookingId).orElseThrow(() -> {
             log.warn("Booking not found id={}", bookingId);
-            return new NotFoundException("Booking not found");
+            return new NotFoundException("Booking not found id = " + bookingId);
         });
     }
 
     private User getUserOrThrow(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> {
             log.warn("User not found id={}", userId);
-            return new NotFoundException("User not found");
+            return new NotFoundException("User not found id = " + userId);
         });
     }
 
     private Item getItemOrThrow(Long itemId) {
         return itemRepository.findById(itemId).orElseThrow(() -> {
             log.warn("Item not found id={}", itemId);
-            return new NotFoundException("Item not found");
+            return new NotFoundException("Item not found = " + itemId);
         });
     }
 
