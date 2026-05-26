@@ -8,7 +8,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.user.storage.UserRepository;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -18,15 +18,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
     private final UserMapper userMapper;
 
     @Override
     public UserDto create(UserDto userDto) {
-        log.info("Create user id={}", userDto.getId());
+        log.info("Create user email={}", userDto.getEmail());
         validateEmailUnique(userDto.getEmail(), null);
         User user = userMapper.toEntity(userDto);
-        return userMapper.toDto(userStorage.create(user));
+        return userMapper.toDto(userRepository.save(user));
     }
 
     @Override
@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
 
         userMapper.update(userDto, user);
 
-        return userMapper.toDto(userStorage.update(user));
+        return userMapper.toDto(userRepository.save(user));
     }
 
     @Override
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Collection<UserDto> getAll() {
         log.info("Get all users");
-        return userStorage.getAll().stream()
+        return userRepository.findAll().stream()
                 .map(userMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -59,11 +59,11 @@ public class UserServiceImpl implements UserService {
     public void delete(Long userId) {
         log.info("Delete user id={}", userId);
         getUserOrThrow(userId);
-        userStorage.delete(userId);
+        userRepository.deleteById(userId);
     }
 
     private User getUserOrThrow(Long userId) {
-        return userStorage.getById(userId)
+        return userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.warn("User not found id={}", userId);
                     return new NotFoundException("User not found with id=" + userId);
@@ -86,7 +86,11 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateEmailUnique(String email, Long excludeUserId) {
-        if (userStorage.existsByEmail(email, excludeUserId)) {
+        boolean exists = excludeUserId == null
+                ? userRepository.existsByEmail(email)
+                : userRepository.existsByEmailAndIdNot(email, excludeUserId);
+
+        if (exists) {
             log.warn("Email already exists: {}", email);
             throw new ConflictException("Email already exists");
         }
