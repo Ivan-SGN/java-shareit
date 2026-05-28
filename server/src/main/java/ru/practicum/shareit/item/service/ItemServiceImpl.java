@@ -81,7 +81,7 @@ public class ItemServiceImpl implements ItemService {
     public Collection<ItemDto> getByOwner(Long userId) {
         log.info("Get items by owner id={}", userId);
         getUserOrThrow(userId);
-        List<Item> items = itemRepository.findAllByOwnerId(userId);
+        List<Item> items = itemRepository.findAllByOwnerIdOrderByIdAsc(userId);
         List<ItemDto> dtos = items.stream().map(itemMapper::toDto).collect(Collectors.toList());
         if (items.isEmpty()) {
             return dtos;
