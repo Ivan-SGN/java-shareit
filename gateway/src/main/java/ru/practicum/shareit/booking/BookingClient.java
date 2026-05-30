@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.client.BaseClient;
 
-import java.util.Map;
-
 @Service
 public class BookingClient extends BaseClient {
 
