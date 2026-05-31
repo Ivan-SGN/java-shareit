@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.client.BaseClient;
 
+import java.util.Map;
+
 @Service
 public class BookingClient extends BaseClient {
 
@@ -31,8 +33,9 @@ public class BookingClient extends BaseClient {
 
     public ResponseEntity<Object> approve(Long userId, Long bookingId, boolean approved) {
         return patch(
-                API_PREFIX + "/" + bookingId + "?approved=" + approved,
+                API_PREFIX + "/" + bookingId + "?approved={approved}",
                 userId,
+                Map.of("approved", approved),
                 null
         );
     }
@@ -46,15 +49,17 @@ public class BookingClient extends BaseClient {
 
     public ResponseEntity<Object> getByUser(Long userId, String state) {
         return get(
-                API_PREFIX + "?state=" + state,
-                userId
+                API_PREFIX + "?state={state}",
+                userId,
+                Map.of("state", state)
         );
     }
 
     public ResponseEntity<Object> getByOwner(Long userId, String state) {
         return get(
-                API_PREFIX + "/owner?state=" + state,
-                userId
+                API_PREFIX + "/owner?state={state}",
+                userId,
+                Map.of("state", state)
         );
     }
 }

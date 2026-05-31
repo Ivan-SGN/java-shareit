@@ -9,6 +9,8 @@ import ru.practicum.shareit.item.dto.CommentCreateDto;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
 
+import java.util.Map;
+
 @Component
 public class ItemClient extends BaseClient {
 
@@ -55,7 +57,9 @@ public class ItemClient extends BaseClient {
 
     public ResponseEntity<Object> search(String text) {
         return get(
-                API_PREFIX + "/search?text=" + text
+                API_PREFIX + "/search?text={text}",
+                null,
+                Map.of("text", text)
         );
     }
 

@@ -31,7 +31,6 @@ public class UserClient extends BaseClient {
     public ResponseEntity<Object> update(Long userId, UserDto dto) {
         return patch(
                 API_PREFIX + "/" + userId,
-                null,
                 dto
         );
     }
@@ -43,7 +42,9 @@ public class UserClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getAll() {
-        return get(API_PREFIX);
+        return get(
+                API_PREFIX
+        );
     }
 
     public ResponseEntity<Object> delete(Long userId) {
