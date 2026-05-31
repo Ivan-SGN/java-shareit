@@ -44,7 +44,7 @@ class ItemControllerTest {
     private CommentService commentService;
 
     @Test
-    void CreateItemTest() throws Exception {
+    void createItemTest() throws Exception {
         ItemDto itemDto = createItemDto();
 
         Mockito.when(itemService.create(eq(1L), any(ItemCreateDto.class)))
@@ -65,7 +65,7 @@ class ItemControllerTest {
     }
 
     @Test
-    void UpdateItemTest() throws Exception {
+    void updateItemTest() throws Exception {
         ItemDto itemDto = createItemDto();
         itemDto.setName("Updated Drill");
 
@@ -84,7 +84,7 @@ class ItemControllerTest {
     }
 
     @Test
-    void GetItemByIdTest() throws Exception {
+    void getItemByIdTest() throws Exception {
         ItemDto itemDto = createItemDto();
 
         Mockito.when(itemService.getById(1L, 1L))
@@ -98,7 +98,7 @@ class ItemControllerTest {
     }
 
     @Test
-    void GetItemsByOwnerTest() throws Exception {
+    void getItemsByOwnerTest() throws Exception {
         ItemDto itemDto = createItemDto();
 
         Mockito.when(itemService.getByOwner(1L))
@@ -112,7 +112,7 @@ class ItemControllerTest {
     }
 
     @Test
-    void SearchItemsTest() throws Exception {
+    void searchItemsTest() throws Exception {
         ItemDto itemDto = createItemDto();
 
         Mockito.when(itemService.search("drill"))
@@ -126,7 +126,7 @@ class ItemControllerTest {
     }
 
     @Test
-    void CreateCommentTest() throws Exception {
+    void createCommentTest() throws Exception {
         CommentDto commentDto = new CommentDto();
         commentDto.setId(1L);
         commentDto.setText("Good item");

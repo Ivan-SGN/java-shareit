@@ -37,7 +37,7 @@ class ItemRequestControllerTest {
     private ItemRequestService itemRequestService;
 
     @Test
-    void CreateRequestTest() throws Exception {
+    void createRequestTest() throws Exception {
         ItemRequestDto requestDto = createRequestDto();
 
         Mockito.when(itemRequestService.create(eq(1L), any(ItemRequestCreateDto.class)))
@@ -56,7 +56,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void GetOwnRequestsTest() throws Exception {
+    void getOwnRequestsTest() throws Exception {
         ItemRequestDto requestDto = createRequestDto();
 
         Mockito.when(itemRequestService.getOwnRequests(1L))
@@ -70,7 +70,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void GetAllRequestsTest() throws Exception {
+    void getAllRequestsTest() throws Exception {
         ItemRequestDto requestDto = createRequestDto();
 
         Mockito.when(itemRequestService.getAllRequests(1L))
@@ -84,7 +84,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void GetRequestByIdTest() throws Exception {
+    void getRequestByIdTest() throws Exception {
         ItemRequestDto requestDto = createRequestDto();
 
         Mockito.when(itemRequestService.getById(1L, 1L))

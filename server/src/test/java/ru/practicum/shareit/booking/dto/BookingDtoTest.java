@@ -19,7 +19,7 @@ class BookingDtoTest {
     private JacksonTester<BookingDto> json;
 
     @Test
-    void SerializeBookingDtoTest() throws Exception {
+    void serializeBookingDtoTest() throws Exception {
         BookingDto bookingDto = createBookingDto();
 
         assertThat(json.write(bookingDto))

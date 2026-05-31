@@ -35,7 +35,7 @@ class UserControllerTest {
     private UserService userService;
 
     @Test
-    void CreateUserTest() throws Exception {
+    void createUserTest() throws Exception {
         UserDto userDto = createUserDto();
 
         Mockito.when(userService.create(any(UserDto.class)))
@@ -51,7 +51,7 @@ class UserControllerTest {
     }
 
     @Test
-    void UpdateUserTest() throws Exception {
+    void updateUserTest() throws Exception {
         UserDto userDto = createUserDto();
         userDto.setName("Updated");
         userDto.setEmail("updated@test.ru");
@@ -69,7 +69,7 @@ class UserControllerTest {
     }
 
     @Test
-    void GetUserByIdTest() throws Exception {
+    void getUserByIdTest() throws Exception {
         UserDto userDto = createUserDto();
 
         Mockito.when(userService.getById(1L))
@@ -83,7 +83,7 @@ class UserControllerTest {
     }
 
     @Test
-    void GetAllUsersTest() throws Exception {
+    void getAllUsersTest() throws Exception {
         UserDto userDto = createUserDto();
 
         Mockito.when(userService.getAll())
@@ -97,7 +97,7 @@ class UserControllerTest {
     }
 
     @Test
-    void DeleteUserTest() throws Exception {
+    void deleteUserTest() throws Exception {
         mockMvc.perform(delete("/users/1"))
                 .andExpect(status().isOk());
 

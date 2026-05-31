@@ -31,7 +31,7 @@ class ItemServiceImplIntegrationTest {
     private final ItemRequestRepository itemRequestRepository;
 
     @Test
-    void CreateItemTest() {
+    void createItemTest() {
         User owner = userRepository.save(createUser());
 
         ItemDto createdItem =
@@ -47,7 +47,7 @@ class ItemServiceImplIntegrationTest {
     }
 
     @Test
-    void CreateItemWithRequestTest() {
+    void createItemWithRequestTest() {
         User owner = userRepository.save(createUser());
 
         ItemRequest request =
@@ -68,7 +68,7 @@ class ItemServiceImplIntegrationTest {
     }
 
     @Test
-    void UpdateItemTest() {
+    void updateItemTest() {
         User owner = userRepository.save(createUser());
 
         ItemDto createdItem =
@@ -91,7 +91,7 @@ class ItemServiceImplIntegrationTest {
     }
 
     @Test
-    void GetItemByIdTest() {
+    void getItemByIdTest() {
         User owner = userRepository.save(createUser());
 
         ItemDto createdItem =
@@ -107,7 +107,7 @@ class ItemServiceImplIntegrationTest {
     }
 
     @Test
-    void GetItemsByOwnerTest() {
+    void getItemsByOwnerTest() {
         User owner = userRepository.save(createUser());
 
         itemService.create(owner.getId(), createItemDto());
@@ -127,7 +127,7 @@ class ItemServiceImplIntegrationTest {
     }
 
     @Test
-    void SearchItemsTest() {
+    void searchItemsTest() {
         User owner = userRepository.save(createUser());
 
         itemService.create(owner.getId(), createItemDto());

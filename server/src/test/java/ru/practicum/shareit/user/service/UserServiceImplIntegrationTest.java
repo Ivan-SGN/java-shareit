@@ -24,7 +24,7 @@ class UserServiceImplIntegrationTest {
     private final UserRepository userRepository;
 
     @Test
-    void CreateUserTest() {
+    void createUserTest() {
         UserDto userDto = createUserDto();
 
         UserDto createdUser = userService.create(userDto);
@@ -37,7 +37,7 @@ class UserServiceImplIntegrationTest {
     }
 
     @Test
-    void CreateUserWithDuplicateEmailTest() {
+    void createUserWithDuplicateEmailTest() {
         userService.create(createUserDto());
 
         UserDto duplicateUser = createUserDto();
@@ -48,7 +48,7 @@ class UserServiceImplIntegrationTest {
     }
 
     @Test
-    void GetUserByIdTest() {
+    void getUserByIdTest() {
         User user = new User();
         user.setName("Ivan");
         user.setEmail("ivan@test.ru");
@@ -63,7 +63,7 @@ class UserServiceImplIntegrationTest {
     }
 
     @Test
-    void GetAllUsersTest() {
+    void getAllUsersTest() {
         User firstUser = new User();
         firstUser.setName("Ivan");
         firstUser.setEmail("ivan@test.ru");
@@ -81,7 +81,7 @@ class UserServiceImplIntegrationTest {
     }
 
     @Test
-    void UpdateUserTest() {
+    void updateUserTest() {
         UserDto createdUser = userService.create(createUserDto());
 
         UserDto updateDto = new UserDto();
@@ -98,7 +98,7 @@ class UserServiceImplIntegrationTest {
     }
 
     @Test
-    void DeleteUserTest() {
+    void deleteUserTest() {
         UserDto createdUser = userService.create(createUserDto());
 
         userService.delete(createdUser.getId());

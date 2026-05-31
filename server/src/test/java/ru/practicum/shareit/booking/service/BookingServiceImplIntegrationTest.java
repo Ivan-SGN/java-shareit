@@ -33,7 +33,7 @@ class BookingServiceImplIntegrationTest {
     private final ItemRepository itemRepository;
 
     @Test
-    void CreateBookingTest() {
+    void createBookingTest() {
         User owner = userRepository.save(createUser("owner@test.ru"));
         User booker = userRepository.save(createUser("booker@test.ru"));
 
@@ -51,7 +51,7 @@ class BookingServiceImplIntegrationTest {
     }
 
     @Test
-    void ApproveBookingTest() {
+    void approveBookingTest() {
         User owner = userRepository.save(createUser("owner@test.ru"));
         User booker = userRepository.save(createUser("booker@test.ru"));
 
@@ -69,7 +69,7 @@ class BookingServiceImplIntegrationTest {
     }
 
     @Test
-    void GetBookingByIdTest() {
+    void getBookingByIdTest() {
         User owner = userRepository.save(createUser("owner@test.ru"));
         User booker = userRepository.save(createUser("booker@test.ru"));
 
@@ -86,7 +86,7 @@ class BookingServiceImplIntegrationTest {
     }
 
     @Test
-    void GetBookingsByUserTest() {
+    void getBookingsByUserTest() {
         User owner = userRepository.save(createUser("owner@test.ru"));
         User booker = userRepository.save(createUser("booker@test.ru"));
 
@@ -101,7 +101,7 @@ class BookingServiceImplIntegrationTest {
     }
 
     @Test
-    void GetBookingsByOwnerTest() {
+    void getBookingsByOwnerTest() {
         User owner = userRepository.save(createUser("owner@test.ru"));
         User booker = userRepository.save(createUser("booker@test.ru"));
 
@@ -116,7 +116,7 @@ class BookingServiceImplIntegrationTest {
     }
 
     @Test
-    void CreateBookingForOwnItemTest() {
+    void createBookingForOwnItemTest() {
         User owner = userRepository.save(createUser("owner@test.ru"));
 
         Item item = itemRepository.save(createItem(owner));

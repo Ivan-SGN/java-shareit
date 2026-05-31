@@ -30,7 +30,7 @@ class ItemRequestServiceImplIntegrationTest {
     private final ItemRepository itemRepository;
 
     @Test
-    void CreateRequestTest() {
+    void createRequestTest() {
         User user = userRepository.save(createUser());
 
         ItemRequestDto createdRequest =
@@ -45,7 +45,7 @@ class ItemRequestServiceImplIntegrationTest {
     }
 
     @Test
-    void GetOwnRequestsTest() {
+    void getOwnRequestsTest() {
         User user = userRepository.save(createUser());
 
         ItemRequest request = new ItemRequest();
@@ -62,7 +62,7 @@ class ItemRequestServiceImplIntegrationTest {
     }
 
     @Test
-    void GetAllRequestsTest() {
+    void getAllRequestsTest() {
         User firstUser = userRepository.save(createUser());
 
         User secondUser = createUser();
@@ -83,7 +83,7 @@ class ItemRequestServiceImplIntegrationTest {
     }
 
     @Test
-    void GetRequestByIdTest() {
+    void getRequestByIdTest() {
         User user = userRepository.save(createUser());
 
         ItemRequest request = new ItemRequest();
@@ -101,7 +101,7 @@ class ItemRequestServiceImplIntegrationTest {
     }
 
     @Test
-    void GetRequestByIdWithItemsTest() {
+    void getRequestByIdWithItemsTest() {
         User user = userRepository.save(createUser());
 
         ItemRequest request = new ItemRequest();

@@ -39,7 +39,7 @@ class BookingControllerTest {
     private BookingService bookingService;
 
     @Test
-    void CreateBookingTest() throws Exception {
+    void createBookingTest() throws Exception {
         BookingDto bookingDto = createBookingDto();
 
         Mockito.when(bookingService.create(eq(1L), any(BookingCreateDto.class)))
@@ -60,7 +60,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void ApproveBookingTest() throws Exception {
+    void approveBookingTest() throws Exception {
         BookingDto bookingDto = createBookingDto();
         bookingDto.setStatus(BookingStatus.APPROVED);
 
@@ -75,7 +75,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void GetBookingByIdTest() throws Exception {
+    void getBookingByIdTest() throws Exception {
         BookingDto bookingDto = createBookingDto();
 
         Mockito.when(bookingService.getById(1L, 1L))
@@ -88,7 +88,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void GetBookingsByUserTest() throws Exception {
+    void getBookingsByUserTest() throws Exception {
         BookingDto bookingDto = createBookingDto();
 
         Mockito.when(bookingService.getByUser(1L, "ALL"))
@@ -101,7 +101,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void GetBookingsByOwnerTest() throws Exception {
+    void getBookingsByOwnerTest() throws Exception {
         BookingDto bookingDto = createBookingDto();
 
         Mockito.when(bookingService.getByOwner(1L, "ALL"))
