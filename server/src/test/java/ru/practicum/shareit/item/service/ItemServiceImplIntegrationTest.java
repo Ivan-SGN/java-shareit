@@ -140,6 +140,89 @@ class ItemServiceImplIntegrationTest {
                 .isEqualTo("Drill");
     }
 
+    @Test
+    void updateItemOnlyNameTest() {
+        User owner = userRepository.save(createUser());
+
+        ItemDto createdItem =
+                itemService.create(owner.getId(), createItemDto());
+
+        ItemUpdateDto updateDto = new ItemUpdateDto();
+        updateDto.setName("New name");
+
+        itemService.update(owner.getId(), createdItem.getId(), updateDto);
+
+        Item updatedItem = itemRepository.findById(createdItem.getId())
+                .orElseThrow();
+
+        assertThat(updatedItem.getName()).isEqualTo("New name");
+        assertThat(updatedItem.getDescription()).isEqualTo("Power drill");
+        assertThat(updatedItem.getAvailable()).isTrue();
+    }
+
+    @Test
+    void searchEmptyTextTest() {
+        User owner = userRepository.save(createUser());
+
+        itemService.create(owner.getId(), createItemDto());
+
+        Collection<ItemDto> items =
+                itemService.search("");
+
+        assertThat(items).isEmpty();
+    }
+
+    @Test
+    void searchUnavailableItemTest() {
+        User owner = userRepository.save(createUser());
+
+        ItemCreateDto itemDto = createItemDto();
+        itemDto.setAvailable(false);
+
+        itemService.create(owner.getId(), itemDto);
+
+        Collection<ItemDto> items =
+                itemService.search("drill");
+
+        assertThat(items).isEmpty();
+    }
+
+    @Test
+    void searchByDescriptionTest() {
+        User owner = userRepository.save(createUser());
+
+        itemService.create(owner.getId(), createItemDto());
+
+        Collection<ItemDto> items =
+                itemService.search("power");
+
+        assertThat(items).hasSize(1);
+    }
+
+    @Test
+    void getItemsOnlyForOwnerTest() {
+        User firstOwner = userRepository.save(createUser());
+
+        User secondOwner = new User();
+        secondOwner.setName("Petr");
+        secondOwner.setEmail("petr@test.ru");
+        secondOwner = userRepository.save(secondOwner);
+
+        itemService.create(firstOwner.getId(), createItemDto());
+
+        ItemCreateDto secondItem = createItemDto();
+        secondItem.setName("Saw");
+
+        itemService.create(secondOwner.getId(), secondItem);
+
+        Collection<ItemDto> items =
+                itemService.getByOwner(firstOwner.getId());
+
+        assertThat(items).hasSize(1);
+        assertThat(items.iterator().next().getName())
+                .isEqualTo("Drill");
+    }
+
     private User createUser() {
         User user = new User();
         user.setName("Ivan");

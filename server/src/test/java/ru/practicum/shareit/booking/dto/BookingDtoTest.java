@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
+import org.springframework.boot.test.json.JsonContent;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
@@ -19,32 +20,54 @@ class BookingDtoTest {
     private JacksonTester<BookingDto> json;
 
     @Test
-    void serializeBookingDtoTest() throws Exception {
-        BookingDto bookingDto = createBookingDto();
+    void bookingDtoSerializationTest() throws Exception {
+        BookingDto dto = createBookingDto();
 
-        assertThat(json.write(bookingDto))
-                .extractingJsonPathNumberValue("$.id")
+        JsonContent<BookingDto> result = json.write(dto);
+
+        assertThat(result).extractingJsonPathNumberValue("$.id")
                 .isEqualTo(1);
 
-        assertThat(json.write(bookingDto))
-                .extractingJsonPathStringValue("$.status")
+        assertThat(result).extractingJsonPathStringValue("$.status")
                 .isEqualTo("WAITING");
 
-        assertThat(json.write(bookingDto))
-                .extractingJsonPathStringValue("$.start")
+        assertThat(result).extractingJsonPathStringValue("$.start")
                 .isEqualTo("2026-05-30T14:00:00");
 
-        assertThat(json.write(bookingDto))
-                .extractingJsonPathStringValue("$.end")
+        assertThat(result).extractingJsonPathStringValue("$.end")
                 .isEqualTo("2026-05-31T14:00:00");
 
-        assertThat(json.write(bookingDto))
-                .extractingJsonPathNumberValue("$.item.id")
+        assertThat(result).extractingJsonPathNumberValue("$.item.id")
                 .isEqualTo(1);
 
-        assertThat(json.write(bookingDto))
-                .extractingJsonPathNumberValue("$.booker.id")
+        assertThat(result).extractingJsonPathNumberValue("$.booker.id")
                 .isEqualTo(2);
+    }
+
+    @Test
+    void bookingDtoDeserializationTest() throws Exception {
+        BookingDto sourceDto = createBookingDto();
+
+        BookingDto parsedDto =
+                json.parseObject(json.write(sourceDto).getJson());
+
+        assertThat(parsedDto.getId())
+                .isEqualTo(sourceDto.getId());
+
+        assertThat(parsedDto.getStatus())
+                .isEqualTo(sourceDto.getStatus());
+
+        assertThat(parsedDto.getStart())
+                .isEqualTo(sourceDto.getStart());
+
+        assertThat(parsedDto.getEnd())
+                .isEqualTo(sourceDto.getEnd());
+
+        assertThat(parsedDto.getItem().getId())
+                .isEqualTo(sourceDto.getItem().getId());
+
+        assertThat(parsedDto.getBooker().getId())
+                .isEqualTo(sourceDto.getBooker().getId());
     }
 
     private BookingDto createBookingDto() {

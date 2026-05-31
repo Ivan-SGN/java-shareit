@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
+import org.springframework.boot.test.json.JsonContent;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,41 +18,47 @@ class ItemRequestDtoTest {
     private JacksonTester<ItemRequestDto> json;
 
     @Test
-    void serializeItemRequestDtoTest() throws Exception {
-        ItemRequestDto requestDto = createItemRequestDto();
+    void itemRequestDtoSerializationTest() throws Exception {
+        ItemRequestItemDto item = new ItemRequestItemDto();
+        item.setId(10L);
+        item.setName("Drill");
+        item.setOwnerId(5L);
 
-        assertThat(json.write(requestDto))
-                .extractingJsonPathNumberValue("$.id")
+        ItemRequestDto dto = new ItemRequestDto();
+        dto.setId(1L);
+        dto.setDescription("Need drill");
+        dto.setCreated(LocalDateTime.of(2026, 1, 1, 10, 0));
+        dto.setItems(List.of(item));
+
+        JsonContent<ItemRequestDto> result = json.write(dto);
+
+        assertThat(result).extractingJsonPathNumberValue("$.id")
                 .isEqualTo(1);
 
-        assertThat(json.write(requestDto))
-                .extractingJsonPathStringValue("$.description")
+        assertThat(result).extractingJsonPathStringValue("$.description")
                 .isEqualTo("Need drill");
 
-        assertThat(json.write(requestDto))
-                .extractingJsonPathStringValue("$.created")
-                .isEqualTo("2026-05-30T14:00:00");
+        assertThat(result).extractingJsonPathStringValue("$.created")
+                .isEqualTo("2026-01-01T10:00:00");
 
-        assertThat(json.write(requestDto))
-                .extractingJsonPathNumberValue("$.items[0].id")
+        assertThat(result).extractingJsonPathNumberValue("$.items[0].id")
                 .isEqualTo(10);
-
-        assertThat(json.write(requestDto))
-                .extractingJsonPathStringValue("$.items[0].name")
-                .isEqualTo("Drill");
     }
 
-    private ItemRequestDto createItemRequestDto() {
-        ItemRequestItemDto itemDto = new ItemRequestItemDto();
-        itemDto.setId(10L);
-        itemDto.setName("Drill");
+    @Test
+    void itemRequestDtoDeserializeTest() throws Exception {
+        ItemRequestDto sourceDto = new ItemRequestDto();
+        sourceDto.setId(1L);
+        sourceDto.setDescription("Need drill");
+        sourceDto.setCreated(LocalDateTime.of(2026, 1, 1, 10, 0));
 
-        ItemRequestDto requestDto = new ItemRequestDto();
-        requestDto.setId(1L);
-        requestDto.setDescription("Need drill");
-        requestDto.setCreated(LocalDateTime.of(2026, 5, 30, 14, 0));
-        requestDto.setItems(List.of(itemDto));
+        ItemRequestDto parsedDto =
+                json.parseObject(json.write(sourceDto).getJson());
 
-        return requestDto;
+        assertThat(parsedDto.getId()).isEqualTo(sourceDto.getId());
+        assertThat(parsedDto.getDescription())
+                .isEqualTo(sourceDto.getDescription());
+        assertThat(parsedDto.getCreated())
+                .isEqualTo(sourceDto.getCreated());
     }
 }

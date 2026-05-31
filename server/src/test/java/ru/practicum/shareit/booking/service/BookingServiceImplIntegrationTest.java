@@ -126,6 +126,141 @@ class BookingServiceImplIntegrationTest {
                 .isInstanceOf(ValidationException.class);
     }
 
+    @Test
+    void rejectBookingTest() {
+        User owner = userRepository.save(createUser("owner@test.ru"));
+        User booker = userRepository.save(createUser("booker@test.ru"));
+
+        Item item = itemRepository.save(createItem(owner));
+
+        BookingDto booking =
+                bookingService.create(booker.getId(), createBookingDto(item.getId()));
+
+        bookingService.approve(owner.getId(), booking.getId(), false);
+
+        Booking savedBooking = bookingRepository.findById(booking.getId())
+                .orElseThrow();
+
+        assertThat(savedBooking.getStatus())
+                .isEqualTo(BookingStatus.REJECTED);
+    }
+
+    @Test
+    void getBookingsByUserEmptyTest() {
+        User user = userRepository.save(createUser("user@test.ru"));
+
+        List<BookingDto> bookings =
+                bookingService.getByUser(user.getId(), "ALL");
+
+        assertThat(bookings).isEmpty();
+    }
+
+    @Test
+    void getBookingsByUserWaitingStateTest() {
+        User owner = userRepository.save(createUser("owner@test.ru"));
+        User booker = userRepository.save(createUser("booker@test.ru"));
+
+        Item item = itemRepository.save(createItem(owner));
+
+        bookingService.create(booker.getId(), createBookingDto(item.getId()));
+
+        List<BookingDto> bookings =
+                bookingService.getByUser(booker.getId(), "WAITING");
+
+        assertThat(bookings).hasSize(1);
+        assertThat(bookings.getFirst().getStatus())
+                .isEqualTo(BookingStatus.WAITING);
+    }
+
+    @Test
+    void getBookingsByUserRejectedStateTest() {
+        User owner = userRepository.save(createUser("owner@test.ru"));
+        User booker = userRepository.save(createUser("booker@test.ru"));
+
+        Item item = itemRepository.save(createItem(owner));
+
+        BookingDto booking =
+                bookingService.create(booker.getId(), createBookingDto(item.getId()));
+
+        bookingService.approve(owner.getId(), booking.getId(), false);
+
+        List<BookingDto> bookings =
+                bookingService.getByUser(booker.getId(), "REJECTED");
+
+        assertThat(bookings).hasSize(1);
+        assertThat(bookings.getFirst().getStatus())
+                .isEqualTo(BookingStatus.REJECTED);
+    }
+
+    @Test
+    void getBookingsByUserFutureStateTest() {
+        User owner = userRepository.save(createUser("owner@test.ru"));
+        User booker = userRepository.save(createUser("booker@test.ru"));
+
+        Item item = itemRepository.save(createItem(owner));
+
+        bookingService.create(booker.getId(), createBookingDto(item.getId()));
+
+        List<BookingDto> bookings =
+                bookingService.getByUser(booker.getId(), "FUTURE");
+
+        assertThat(bookings).hasSize(1);
+    }
+
+    @Test
+    void getBookingsByUserCurrentStateTest() {
+        User owner = userRepository.save(createUser("owner@test.ru"));
+        User booker = userRepository.save(createUser("booker@test.ru"));
+
+        Item item = itemRepository.save(createItem(owner));
+
+        Booking booking = new Booking();
+        booking.setItem(item);
+        booking.setBooker(booker);
+        booking.setStatus(BookingStatus.APPROVED);
+        booking.setStart(LocalDateTime.now().minusHours(1));
+        booking.setEnd(LocalDateTime.now().plusHours(1));
+
+        bookingRepository.save(booking);
+
+        List<BookingDto> bookings =
+                bookingService.getByUser(booker.getId(), "CURRENT");
+
+        assertThat(bookings).hasSize(1);
+    }
+
+    @Test
+    void getBookingsByUserPastStateTest() {
+        User owner = userRepository.save(createUser("owner@test.ru"));
+        User booker = userRepository.save(createUser("booker@test.ru"));
+
+        Item item = itemRepository.save(createItem(owner));
+
+        Booking booking = new Booking();
+        booking.setItem(item);
+        booking.setBooker(booker);
+        booking.setStatus(BookingStatus.APPROVED);
+        booking.setStart(LocalDateTime.now().minusDays(2));
+        booking.setEnd(LocalDateTime.now().minusDays(1));
+
+        bookingRepository.save(booking);
+
+        List<BookingDto> bookings =
+                bookingService.getByUser(booker.getId(), "PAST");
+
+        assertThat(bookings).hasSize(1);
+    }
+
+    @Test
+    void getBookingsWithUnknownStateTest() {
+        User user = userRepository.save(createUser("user@test.ru"));
+
+        assertThatThrownBy(() ->
+                bookingService.getByUser(user.getId(), "UNKNOWN"))
+                .isInstanceOf(ValidationException.class)
+                .hasMessageContaining("Unknown state");
+    }
+
     private User createUser(String email) {
         User user = new User();
         user.setName("Ivan");
