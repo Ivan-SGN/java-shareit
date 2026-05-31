@@ -76,6 +76,26 @@ class ItemDtoTest {
                 .isEqualTo(sourceDto.getRequestId());
     }
 
+    @Test
+    void itemDtoEqualsTest() {
+        ItemDto firstDto = getItemDto();
+        ItemDto secondDto = getItemDto();
+
+        assertThat(firstDto)
+                .isEqualTo(secondDto);
+    }
+
+    @Test
+    void itemDtoNotEqualsTest() {
+        ItemDto firstDto = getItemDto();
+        ItemDto secondDto = getItemDto();
+
+        secondDto.setId(999L);
+
+        assertThat(firstDto)
+                .isNotEqualTo(secondDto);
+    }
+
     private static ItemDto getItemDto() {
         BookingShortDto lastBooking = new BookingShortDto();
         lastBooking.setId(1L);

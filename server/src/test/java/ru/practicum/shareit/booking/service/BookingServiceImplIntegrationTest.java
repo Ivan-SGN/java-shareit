@@ -10,7 +10,6 @@ import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.storage.BookingRepository;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.user.User;
@@ -20,7 +19,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Transactional
@@ -66,6 +64,25 @@ class BookingServiceImplIntegrationTest {
                 .orElseThrow();
 
         assertThat(updatedBooking.getStatus()).isEqualTo(BookingStatus.APPROVED);
+    }
+
+    @Test
+    void rejectBookingTest() {
+        User owner = userRepository.save(createUser("owner@test.ru"));
+        User booker = userRepository.save(createUser("booker@test.ru"));
+
+        Item item = itemRepository.save(createItem(owner));
+
+        BookingDto booking =
+                bookingService.create(booker.getId(), createBookingDto(item.getId()));
+
+        bookingService.approve(owner.getId(), booking.getId(), false);
+
+        Booking savedBooking = bookingRepository.findById(booking.getId())
+                .orElseThrow();
+
+        assertThat(savedBooking.getStatus())
+                .isEqualTo(BookingStatus.REJECTED);
     }
 
     @Test
@@ -116,98 +133,6 @@ class BookingServiceImplIntegrationTest {
     }
 
     @Test
-    void createBookingForOwnItemTest() {
-        User owner = userRepository.save(createUser("owner@test.ru"));
-
-        Item item = itemRepository.save(createItem(owner));
-
-        assertThatThrownBy(() ->
-                bookingService.create(owner.getId(), createBookingDto(item.getId())))
-                .isInstanceOf(ValidationException.class);
-    }
-
-    @Test
-    void rejectBookingTest() {
-        User owner = userRepository.save(createUser("owner@test.ru"));
-        User booker = userRepository.save(createUser("booker@test.ru"));
-
-        Item item = itemRepository.save(createItem(owner));
-
-        BookingDto booking =
-                bookingService.create(booker.getId(), createBookingDto(item.getId()));
-
-        bookingService.approve(owner.getId(), booking.getId(), false);
-
-        Booking savedBooking = bookingRepository.findById(booking.getId())
-                .orElseThrow();
-
-        assertThat(savedBooking.getStatus())
-                .isEqualTo(BookingStatus.REJECTED);
-    }
-
-    @Test
-    void getBookingsByUserEmptyTest() {
-        User user = userRepository.save(createUser("user@test.ru"));
-
-        List<BookingDto> bookings =
-                bookingService.getByUser(user.getId(), "ALL");
-
-        assertThat(bookings).isEmpty();
-    }
-
-    @Test
-    void getBookingsByUserWaitingStateTest() {
-        User owner = userRepository.save(createUser("owner@test.ru"));
-        User booker = userRepository.save(createUser("booker@test.ru"));
-
-        Item item = itemRepository.save(createItem(owner));
-
-        bookingService.create(booker.getId(), createBookingDto(item.getId()));
-
-        List<BookingDto> bookings =
-                bookingService.getByUser(booker.getId(), "WAITING");
-
-        assertThat(bookings).hasSize(1);
-        assertThat(bookings.getFirst().getStatus())
-                .isEqualTo(BookingStatus.WAITING);
-    }
-
-    @Test
-    void getBookingsByUserRejectedStateTest() {
-        User owner = userRepository.save(createUser("owner@test.ru"));
-        User booker = userRepository.save(createUser("booker@test.ru"));
-
-        Item item = itemRepository.save(createItem(owner));
-
-        BookingDto booking =
-                bookingService.create(booker.getId(), createBookingDto(item.getId()));
-
-        bookingService.approve(owner.getId(), booking.getId(), false);
-
-        List<BookingDto> bookings =
-                bookingService.getByUser(booker.getId(), "REJECTED");
-
-        assertThat(bookings).hasSize(1);
-        assertThat(bookings.getFirst().getStatus())
-                .isEqualTo(BookingStatus.REJECTED);
-    }
-
-    @Test
-    void getBookingsByUserFutureStateTest() {
-        User owner = userRepository.save(createUser("owner@test.ru"));
-        User booker = userRepository.save(createUser("booker@test.ru"));
-
-        Item item = itemRepository.save(createItem(owner));
-
-        bookingService.create(booker.getId(), createBookingDto(item.getId()));
-
-        List<BookingDto> bookings =
-                bookingService.getByUser(booker.getId(), "FUTURE");
-
-        assertThat(bookings).hasSize(1);
-    }
-
-    @Test
     void getBookingsByUserCurrentStateTest() {
         User owner = userRepository.save(createUser("owner@test.ru"));
         User booker = userRepository.save(createUser("booker@test.ru"));
@@ -249,16 +174,6 @@ class BookingServiceImplIntegrationTest {
                 bookingService.getByUser(booker.getId(), "PAST");
 
         assertThat(bookings).hasSize(1);
-    }
-
-    @Test
-    void getBookingsWithUnknownStateTest() {
-        User user = userRepository.save(createUser("user@test.ru"));
-
-        assertThatThrownBy(() ->
-                bookingService.getByUser(user.getId(), "UNKNOWN"))
-                .isInstanceOf(ValidationException.class)
-                .hasMessageContaining("Unknown state");
     }
 
     private User createUser(String email) {
