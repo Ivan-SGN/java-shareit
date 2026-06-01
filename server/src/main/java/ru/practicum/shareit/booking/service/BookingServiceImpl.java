@@ -120,10 +120,6 @@ public class BookingServiceImpl implements BookingService {
             log.warn("Item {} not available", item.getId());
             throw new ValidationException("Item is not available");
         }
-        if (dto.getStart().isAfter(dto.getEnd()) || dto.getStart().isEqual(dto.getEnd())) {
-            log.warn("Invalid booking time start={} end={}", dto.getStart(), dto.getEnd());
-            throw new ValidationException("Invalid booking time");
-        }
     }
 
     private BookingState parseState(String state) {

@@ -126,52 +126,6 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void createBookingWithEqualDatesTest() {
-        User booker = createUser(1L);
-
-        Item item = createItem(2L);
-
-        BookingCreateDto dto = new BookingCreateDto();
-        dto.setItemId(1L);
-        dto.setStart(LocalDateTime.now().plusDays(1));
-        dto.setEnd(dto.getStart());
-
-        when(userRepository.findById(1L))
-                .thenReturn(Optional.of(booker));
-
-        when(itemRepository.findById(1L))
-                .thenReturn(Optional.of(item));
-
-        assertThatThrownBy(() ->
-                bookingService.create(1L, dto))
-                .isInstanceOf(ValidationException.class)
-                .hasMessageContaining("Invalid booking time");
-    }
-
-    @Test
-    void createBookingWithStartAfterEndTest() {
-        User booker = createUser(1L);
-
-        Item item = createItem(2L);
-
-        BookingCreateDto dto = new BookingCreateDto();
-        dto.setItemId(1L);
-        dto.setStart(LocalDateTime.now().plusDays(2));
-        dto.setEnd(LocalDateTime.now().plusDays(1));
-
-        when(userRepository.findById(1L))
-                .thenReturn(Optional.of(booker));
-
-        when(itemRepository.findById(1L))
-                .thenReturn(Optional.of(item));
-
-        assertThatThrownBy(() ->
-                bookingService.create(1L, dto))
-                .isInstanceOf(ValidationException.class)
-                .hasMessageContaining("Invalid booking time");
-    }
-
-    @Test
     void getBookingAccessDeniedTest() {
         Booking booking = createBooking(10L, 20L);
 

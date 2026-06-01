@@ -161,18 +161,6 @@ class ItemServiceImplIntegrationTest {
     }
 
     @Test
-    void searchEmptyTextTest() {
-        User owner = userRepository.save(createUser());
-
-        itemService.create(owner.getId(), createItemDto());
-
-        Collection<ItemDto> items =
-                itemService.search("");
-
-        assertThat(items).isEmpty();
-    }
-
-    @Test
     void searchUnavailableItemTest() {
         User owner = userRepository.save(createUser());
 

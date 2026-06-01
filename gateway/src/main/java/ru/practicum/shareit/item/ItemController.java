@@ -16,6 +16,8 @@ import ru.practicum.shareit.item.dto.CommentCreateDto;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -33,6 +35,12 @@ public class ItemController {
     public ResponseEntity<Object> update(@RequestHeader("X-Sharer-User-Id") Long userId,
                                          @PathVariable("itemId") Long itemId,
                                          @RequestBody ItemUpdateDto dto) {
+        if (dto.getName() != null && dto.getName().isBlank()) {
+            throw new IllegalArgumentException("Name must not be blank");
+        }
+        if (dto.getDescription() != null && dto.getDescription().isBlank()) {
+            throw new IllegalArgumentException("Description must not be blank");
+        }
         return itemClient.update(userId, itemId, dto);
     }
 
@@ -48,7 +56,10 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> search(@RequestParam("text") String text) {
+    public ResponseEntity<Object> search(@RequestParam String text) {
+        if (text.isBlank()) {
+            return ResponseEntity.ok(List.of());
+        }
         return itemClient.search(text);
     }
 

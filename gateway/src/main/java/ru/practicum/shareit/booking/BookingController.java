@@ -23,7 +23,11 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<Object> create(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                         @Valid @RequestBody BookingCreateDto dto) {
+                                         @Valid @RequestBody BookingCreateDto dto
+    ) {
+        if (!dto.getEnd().isAfter(dto.getStart()) || dto.getStart().isEqual(dto.getEnd())) {
+            throw new IllegalArgumentException("Invalid booking time");
+        }
         return bookingClient.create(userId, dto);
     }
 
